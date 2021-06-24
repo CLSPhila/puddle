@@ -2,3 +2,7 @@
 inst/doc
 .Rproj.user
 *.sqlite*
+*.csv
+*.xlsx
+*.json
+*.xml
