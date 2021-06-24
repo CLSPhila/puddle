@@ -1,0 +1,4 @@
+.puddle
+inst/doc
+.Rproj.user
+*.sqlite*

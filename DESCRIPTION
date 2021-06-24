@@ -1,0 +1,21 @@
+Package: puddle
+Title: Your Tiny Data Lake
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Nate",
+           family = "Vogel",
+           role = c("aut", "cre"),
+           email = "first.last@example.com")
+Description: Cache small datasets. Its a data lake, but small, so ... a puddle! 
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Imports:
+  RSQLite, dplyr, DBI
+Suggests: 
+    knitr,
+    rmarkdown,
+    httr
+VignetteBuilder: knitr

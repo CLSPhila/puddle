@@ -1,0 +1,87 @@
+---
+title: "Creating and Using a Basic Puddle"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{basic-puddle}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(puddle)
+library(dplyr)
+```
+
+# Basics
+
+The first step is to define a no-argument function that returns the dataset we want to use. We'll give this function to Puddle's `connect` method, so that Puddle can call this function to collect the data when necessary.
+
+
+```{r}
+fetch_text_data <- function() {
+  res <- httr::GET("https://raw.githubusercontent.com/CLSPhila/Puddle/main/inst/extdata/sample.csv")
+  return(httr::content(res, as="text"))
+}
+
+read_text <- function(raw_data) {
+  return(read.csv(text=raw_data,stringsAsFactors = FALSE))
+}
+```
+
+These two functions are two halves of a whole. When composed together, they return the dataframe you want to use.
+
+
+```{r}
+head(read_text(fetch_text_data()))
+```
+
+The other requirement is that `fetch_raw_data` returns a single value, not a vector. This might be an issue if you want to return raw binary data, which will be a vector. You need to pack that into a single value.
+
+Next, pass these function to Puddle's `scoop` method. `scoop` will give you the dataset you want, whether from the stored puddle or freshly collected. You can use `scoop` at the beginning of a `tidyverse` pipeline.
+
+```{r}
+puddle::scoop(fetch_text_data,read_text, "sample_data.csv", "A sample dataset to illustrate puddle",puddle=":memory:") %>%
+  summarize(mean=mean(count))
+```
+You can also add to and an inspect the puddle with other methods. 
+
+`get_puddle_connection` gives you a connection to a puddle database. `drip` lets you add a dataset. Use `gaze` to look into your puddle and see what datasets are inside.
+
+```{r}
+get_puddle_connection(":memory:") %>% 
+  drip(fetch_text_data, "sample", "an example to illustrate the library")  %>% 
+  gaze
+```
+
+
+# Use with LegalServerReader
+
+One motivation for this library is to use the it with another library called `LegalServerReader` which fetches data from a case management application commonly used in Legal Services. `LegalServerReader` makes it easy to collect data via the applications's data api. However, this convenience means it is too easy to call the application's server too frequently which can lead to slowing down the server or getting blocked from access. 
+
+Using `Puddle`, we can collect data from LegalServer and store it, while still including in our code the information about where the data actually comes from. 
+
+As this is a common use, I've included here a function called `mkLegalServerFunctions`. This function _creates_ the pair of functions you'd need to use with `puddle` to use LegalServer's reports api. It works like this:
+
+```
+
+funs <- puddle::mkLegalServerFunctions(report_name="API - Intakes", creds_path="~/.legalservercreds")
+
+intakes <- puddle::scoop(funs$fetch, funs$read, "API - Intakes", "Intakes today.", puddle="puddle.sqlite")
+
+get_puddle_connection("puddle.sqlite") %>% gaze
+# Output
+
+#            name    description       date_modified
+# 1 API - Intakes Intakes today. 2021-06-24 12:29:25
+
+```
+
+`mkLegalServerFunctions` is just a shortcut to functions you can write yourself. What other function-making-functions can you think of that would be helpful to include here?
+
