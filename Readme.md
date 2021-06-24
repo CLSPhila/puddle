@@ -88,10 +88,10 @@ read_report <- function(ser_report) {
   return(read.csv(text=ser_report))
 }
 
-intakes <- puddle::scoop(fetch_report, read_report, "API - Intakes", "Intakes today.", puddle="puddle.sqlite")
+intakes <- puddle::scoop(fetch_report, read_report, "API - Intakes", "Intakes today.", puddle="~/puddle.sqlite")
 
 # Lets look into our puddle to see that we've got the legalserver data.
-get_puddle_connection("puddle.sqlite") %>% gaze
+get_puddle_connection("~/puddle.sqlite") %>% gaze
 ```
 
 You can write the `fetch` and `read` functions to serialize the data any way you like. For example instead of serializing to a string of text, you could serialize to a binary format like with `feather.`. 

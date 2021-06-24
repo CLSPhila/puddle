@@ -73,9 +73,9 @@ As this is a common use, I've included here a function called `mkLegalServerFunc
 
 funs <- puddle::mkLegalServerFunctions(report_name="API - Intakes", creds_path="~/.legalservercreds")
 
-intakes <- puddle::scoop(funs$fetch, funs$read, "API - Intakes", "Intakes today.", puddle="puddle.sqlite")
+intakes <- puddle::scoop(funs$fetch, funs$read, "API - Intakes", "Intakes today.", puddle="~/puddle.sqlite")
 
-get_puddle_connection("puddle.sqlite") %>% gaze
+get_puddle_connection("~/puddle.sqlite") %>% gaze
 # Output
 
 #            name    description       date_modified
