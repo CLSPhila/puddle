@@ -24,7 +24,7 @@ mkLegalServerFunctions <- function(report_name, creds_path) {
         return(paste0(ser_report,collapse=""))
       },
       read = function(ser_data) {
-        return(read.csv(text=ser_report))
+        return(read.csv(text=ser_data))
 
       }
     )

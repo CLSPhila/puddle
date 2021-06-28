@@ -5,7 +5,7 @@
 ## Get started right away
 
 ```R
-devtools::install("https://github.com/clsphila/puddle")
+devtools::install_github("https://github.com/clsphila/puddle")
 
 # Define a couple functions.
 
