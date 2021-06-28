@@ -18,9 +18,7 @@ ensure_puddle_schema <- function(conn) {
   return(conn)
 }
 
-
-# not for exporting
-store_dataset <- function(puddle_db, raw_data, data_name, description) {
+insert_dataset <- function(puddle_db, raw_data, data_name, description) {
   
   
   statement = paste(
@@ -35,6 +33,36 @@ store_dataset <- function(puddle_db, raw_data, data_name, description) {
                                     date=as.character(Sys.time()),
                                     raw=raw_data))
   RSQLite::dbClearResult(res)
+}
+
+update_dataset <- function(puddle_db, raw_data, data_name, description) {
+  
+  
+  statement = paste(
+    "UPDATE", PUDDLE_TABLE_NAME, 
+    "SET description = :description, date_modified = :date, data = :raw_data", 
+    "WHERE name = :name")
+  
+  res <- RSQLite::dbSendStatement(puddle_db,
+                                  statement, 
+                                  params=list(
+                                    name=data_name, 
+                                    description=description,
+                                    date=as.character(Sys.time()),
+                                    raw_data=raw_data))
+  RSQLite::dbClearResult(res)
+}
+
+# not for exporting
+store_dataset <- function(puddle_db, raw_data, data_name, description) { 
+  metadata <- RSQLite::dbGetQuery(puddle_db, paste0('SELECT * from ', PUDDLE_TABLE_NAME, ' WHERE name=:n'), params=list(n=data_name))
+  if(nrow(metadata)!=0) {
+    # The dataset is already present (a matching unique name), so 
+    # update rather than inserting.
+    update_dataset(puddle_db, raw_data, data_name, description)
+  } else {
+    insert_dataset(puddle_db, raw_data, data_name, description)
+  }
 }
 
 # not for exporting
