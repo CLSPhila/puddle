@@ -12,14 +12,20 @@ remote_data <- function() {
   return(httr::content(res, as="text"))
 }
 
-test_that("scoop stores a dataset is not in the puddle", {
+deserialize_data <- function(serialized_data) { 
+  # transform from the serialized output of `remote_data` to a dataframe
+  return(read.csv(text=serialized_data,stringsAsFactors = FALSE))
+}
+  
+
+test_that("drip stores a dataset is not in the puddle", {
   pdb <- puddle::get_puddle_connection(":memory:")
   pdb <- puddle::drip(pdb, remote_data, "sample", "some sample data")
   contents <- gaze(pdb)
   expect_equal(nrow(contents),1)
 })
 
-test_that("scoop only stores a dataset once", {
+test_that("drip only stores a dataset once", {
   pdb <- puddle::get_puddle_connection(":memory:")
   pdb <- puddle::drip(pdb, remote_data, "sample", "some sample data")
   contents <- gaze(pdb)
@@ -29,3 +35,10 @@ test_that("scoop only stores a dataset once", {
   contents_modified <- gaze(pdb)
   expect_equal(nrow(contents_modified),1)
 })
+
+
+test_that("scoop stores and fetches a dataset", {
+  res <- scoop(remote_data, deserialize_data, "sample data", "some data", puddle=":memory:")
+  expect_equal(ncol(res), 2)
+})
+
